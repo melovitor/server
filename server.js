@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
           }
 
           res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ sucesso: true, respostaNetSuite: nsResponse }));
+          res.end(JSON.stringify({ nsResponse }));
         });
 
       } catch (e) {
