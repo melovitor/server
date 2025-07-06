@@ -3,10 +3,10 @@ const https = require('https');
 
 // Configurações
 const PORT = process.env.PORT || 3000;
-const NETSUITE_URL = 'https://11261030.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=3805&deploy=1&compid=11261030&ns-at=AAEJ7tMQ_fFIchTkxiH7rT_vYeV6lMKUQ2Gv3_l0PeIiMd-ZiVw'
+const NETSUITE_URL = 'https://11261030.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=3805&deploy=1&compid=11261030&ns-at=AAEJ7tMQ_fFIchTkxiH7rT_vYeV6lMKUQ2Gv3_l0PeIiMd-ZiVw';
 
 // Função para enviar os dados ao NetSuite
-function sendToNetSuite(data, callback) {
+function sendToNetSuite(data) {
   const jsonData = JSON.stringify(data);
 
   const options = {
@@ -20,17 +20,18 @@ function sendToNetSuite(data, callback) {
   const req = https.request(NETSUITE_URL, options, (res) => {
     let response = '';
     res.on('data', chunk => response += chunk);
-    res.on('end', () => callback(null, res.statusCode, response));
+    res.on('end', () => {
+      console.log(`✅ Resposta do NetSuite: ${response}`);
+    });
   });
 
   req.on('error', (e) => {
-    callback(e);
+    console.error('❌ Erro ao enviar para o NetSuite:', e.message);
   });
 
   req.write(jsonData);
   req.end();
 }
-
 
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/wms-to-ns') {
@@ -40,21 +41,17 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
-        console.log('Recebido do WMS:', data);
+        console.log('📦 Dados recebidos do WMS:', data);
 
-        sendToNetSuite(data, (err, statusCode, nsResponse) => {
-          if (err) {
-            console.error('Erro ao enviar para o NetSuite:', err.message);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ sucesso: false, erro: err.message }));
-            return;
-          }
+        // Envia resposta imediata ao WMS
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ sucesso: true, mensagem: 'Dados recebidos com sucesso.' }));
 
-          res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ nsResponse }));
-        });
+        // Continua o processamento em segundo plano
+        sendToNetSuite(data);
 
       } catch (e) {
+        console.error('❌ JSON inválido:', e.message);
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ sucesso: false, erro: 'JSON inválido' }));
       }
@@ -67,5 +64,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
