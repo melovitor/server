@@ -3,7 +3,7 @@ const https = require('https');
 
 // Configurações
 const PORT = process.env.PORT || 3000;
-const NETSUITE_URL = 'https://11261030.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=3805&deploy=1&compid=11261030&ns-at=AAEJ7tMQ_fFIchTkxiH7rT_vYeV6lMKUQ2Gv3_l0PeIiMd-ZiVw';
+const NETSUITE_URL = 'https://11261030-sb1.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=3805&deploy=1&compid=11261030_SB1&ns-at=AAEJ7tMQZMCC7sJTdLe2HeIv2sMn0KNN0iWkr49zxO2YNhW5yCk';
 
 // Função para enviar os dados ao NetSuite
 function sendToNetSuite(data) {
